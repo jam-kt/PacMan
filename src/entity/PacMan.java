@@ -7,7 +7,7 @@ import main.KeyHandler;
 import java.awt.*;
 
 
-public class PacMan implements Entity {
+public class PacMan implements MovingEntity {
     private final GamePanel gamePanel;
     private final KeyHandler keyHandler;
     private final Point position;
@@ -59,7 +59,7 @@ public class PacMan implements Entity {
 
     public void draw(Graphics2D graphics2D) {
         graphics2D.drawImage(animationHandler.getNextFrame(), position.x, position.y,
-                gamePanel.tileSize, gamePanel.tileSize, null);
+                gamePanel.getTileSize(), gamePanel.getTileSize(), null);
     }
 
 }

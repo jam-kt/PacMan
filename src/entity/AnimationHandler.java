@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class AnimationHandler { // not the most strict class regarding OOP adherence, but easier since game only has few animations
-    private final Entity entity;
+    private final MovingEntity entity; // all entities that will move are also animated. Again not the most OOP strict...
     private final int interval; // how many frames each sprite will be displayed for 60/interval = animation frame rate
     private int framesPassed; // for internal logic
     private int currentFrame = 0; // ^
@@ -17,7 +17,7 @@ public class AnimationHandler { // not the most strict class regarding OOP adher
     private final ArrayList<BufferedImage> right = new ArrayList<>();
     private ArrayList<BufferedImage> directionInUse; // stores the list that corresponds to the entities current direction
 
-    public AnimationHandler(Entity entity, int interval) {
+    public AnimationHandler(MovingEntity entity, int interval) {
         this.entity = entity;
         this.interval = interval; // how many frames each sprite will be displayed for 60/interval = animation frame rate
         this.framesPassed = interval;

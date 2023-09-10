@@ -3,14 +3,17 @@ package main;
 public class GameThread implements Runnable {
     private GamePanel gamePanel;
     private Thread gameThread;
-    private final int FPS = 60;
+    private final int FPS;
 
-    public GameThread(GamePanel gamePanel) {
+    public GameThread(GamePanel gamePanel, int FPS) {
         this.gamePanel = gamePanel;
         this.gameThread = new Thread(this);
-        gameThread.start();
+        this.FPS = FPS;
     }
 
+    public void start() {
+        this.gameThread.start();
+    }
     @Override
     public void run() { // drives the update and render cycle for the gamePanel at 60 FPS
         double interval = 1000000000/FPS;

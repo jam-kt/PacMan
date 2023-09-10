@@ -17,7 +17,7 @@ public class Main {
         gameWindow.pack();
         gamePanel.requestFocusInWindow();
 
-        GameThread gameThread = new GameThread(gamePanel);
-
+        GameThread gameThread = new GameThread(gamePanel, 60);
+        gameThread.start();
     }
 }

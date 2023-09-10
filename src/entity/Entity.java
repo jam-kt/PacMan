@@ -6,5 +6,4 @@ public interface Entity {
 
 
     Point getPosition();
-    String getCurrentDirection();
 }
