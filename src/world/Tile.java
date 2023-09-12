@@ -7,7 +7,7 @@ import java.util.HashSet;
 
 public class Tile {
     private BufferedImage image;
-    private HashSet<Entity> occupants; // = new HashSet<>(); // default capacity of 16
+    private HashSet<Entity> occupants = new HashSet<>(7); // default capacity of 16
     private boolean isWall;
     private Point pixelPoint; // represents the pixel coordinates for the upper-left most pixel in the tile
 
@@ -27,5 +27,22 @@ public class Tile {
 
     public Point getPixelPoint() {
         return pixelPoint;
+    }
+
+    public void addOccupant(Entity entity) {
+        this.occupants.add(entity);
+    }
+
+    public void removeOccupant(Entity entity) {
+        this.occupants.remove(entity);
+    }
+
+    public boolean containsOccupantType(Class<?> classType) {
+        for(Entity entity : this.occupants.stream().toList()) {
+            if(entity.getClass().equals(classType)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

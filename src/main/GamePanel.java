@@ -1,9 +1,6 @@
 package main;
 
-import entity.PacMan;
-import world.Background;
-import world.Point;
-
+import world.World;
 import javax.swing.JPanel;
 import java.awt.*;
 
@@ -15,10 +12,9 @@ public class GamePanel extends JPanel{
     private final int tileSize = retroTileSize * scale;  // 16x16 tiles
     private final int panelPixelWidth = tileSize * 28; // 28 columns
     private final int panelPixelHeight = tileSize * 31; // 36 rows (31 without extra GUI parts like lives/score)
+    public final KeyHandler keyHandler = new KeyHandler();
 
-    private final KeyHandler keyHandler = new KeyHandler();
-    Background background = new Background(this);
-    PacMan pacMan = new PacMan(this, keyHandler, new Point(100, 100), tileSize);
+    World world = new World(this);
 
     public GamePanel() {
         this.setPreferredSize(new Dimension(panelPixelWidth, panelPixelHeight));
@@ -26,6 +22,10 @@ public class GamePanel extends JPanel{
         this.setDoubleBuffered(true);
         this.addKeyListener(keyHandler);
         this.setFocusable(true);
+    }
+
+    public int getScale() {
+        return this.scale;
     }
 
     public int getPanelPixelHeight() {
@@ -41,15 +41,15 @@ public class GamePanel extends JPanel{
     }
 
     public void update() { // executes game logic for entities within eventScheduler such as movement/collisions
-        pacMan.update();
+        world.updateMovingEntities();
     }
 
     public void paintComponent(Graphics g) { // renders background and all entities within eventScheduler
         super.paintComponent(g);
         Graphics2D graphics2D = (Graphics2D) g;
 
-        background.drawBackground(graphics2D);
-        pacMan.draw(graphics2D);
+        world.drawBackground(graphics2D);
+        world.drawEntities(graphics2D);
 
         graphics2D.dispose();
     }
