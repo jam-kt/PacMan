@@ -5,6 +5,8 @@ import java.awt.event.KeyListener;
 
 public class KeyHandler implements KeyListener{
     public boolean w, a, s, d;
+    public boolean reset;
+    public boolean pause = true;
 
 
     @Override
@@ -43,19 +45,14 @@ public class KeyHandler implements KeyListener{
 
     @Override
     public void keyReleased(KeyEvent e) {
-//        int keyCode = e.getKeyCode();
-//
-//        if(keyCode == KeyEvent.VK_W) {
-//            w = false;
-//        }
-//        else if(keyCode == KeyEvent.VK_A) {
-//            a = false;
-//        }
-//        else if(keyCode == KeyEvent.VK_S) {
-//            s = false;
-//        }
-//        else if(keyCode == KeyEvent.VK_D) {
-//            d = false;
-//        }
+        int keyCode = e.getKeyCode();
+
+        if (keyCode == KeyEvent.VK_R) {
+            reset = true;
+        }
+        if (keyCode == KeyEvent.VK_ENTER) {
+            pause = !pause;
+        }
     }
+
 }

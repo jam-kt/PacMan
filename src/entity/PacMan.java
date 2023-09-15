@@ -6,6 +6,7 @@ import main.KeyHandler;
 import world.World;
 
 import java.awt.*;
+import java.util.List;
 
 
 public class PacMan implements MovingEntity {
@@ -15,18 +16,17 @@ public class PacMan implements MovingEntity {
     private Point position;
     private final AnimationHandler animationHandler;
     private final int speed;
-    private String currentDirection = "up";
-    private String futureDirection = "up"; // stores a direction that pacman will take once at an appropriate spot
+    private String currentDirection = "right";
     private final Rectangle hitbox;
 
-    public PacMan(GamePanel gamePanel, World world, Point position) {
+    public PacMan(GamePanel gamePanel, World world, Point position, int SpeedTilesPerSec) {
+        this.position = position;
         this.gp = gamePanel;
         this.keyHandler = gp.keyHandler;
-        this.position = position;
-        this.speed = 1; //(gp.getTileSize() * 11) / 60; // what is his speed? Right now, 11 tiles per second
+        this.speed = (gp.getTileSize() * SpeedTilesPerSec) / 60; // what is his speed? Right now, 8 tiles per second
         this.world = world;
-        this.animationHandler = new AnimationHandler(this, 10);
-        this.hitbox = new Rectangle(2*gp.getScale(), 2*gp.getScale(), 12*gp.getScale(), 12*gp.getScale());
+        this.animationHandler = new AnimationHandler(this, 5);
+        this.hitbox = new Rectangle(0, 0, gp.getTileSize(), gp.getTileSize());
 
     }
 
@@ -40,20 +40,20 @@ public class PacMan implements MovingEntity {
     }
 
     @Override
-    public Rectangle getHitbox() {
-        this.updateHitbox();
+    public Rectangle getCurrentHitbox() { // use for getting the current hitbox of the entity
+        this.hitbox.setLocation(this.position.x, this.position.y);
         return this.hitbox;
     }
 
-    private void updateHitbox() { // the rectangle for hitbox is stationary, so it must be manually moved to entity's current pos
-        this.hitbox.setLocation(this.position.x + 2*gp.getScale(), this.position.y + 2*gp.getScale());
+    public Rectangle getIntendedHitbox(Point intendedPoint) {// returns the hitbox for the entity if it were to be moved to intendedPoint
+        return new Rectangle(intendedPoint.x, intendedPoint.y, gp.getTileSize(), gp.getTileSize());
     }
 
     public String getCurrentDirection() {
         return this.currentDirection;
     }
 
-    private void move() {
+    public void move() {
         String intendedDirection = this.currentDirection;
         if(keyHandler.w) {
             intendedDirection = "up";
@@ -92,8 +92,22 @@ public class PacMan implements MovingEntity {
         }
     }
 
+    public void checkInteractions() {
+        List<Entity> sharingATile = world.getTile(this.position).getOccupants();
+        for(Entity entity : sharingATile) {
+            switch (entity.getClass().getName()) {
+                case "entity.Dot":
+                    if(this.getCurrentHitbox().intersects(entity.getCurrentHitbox())) {
+                        world.removeEntity(entity);
+                        //increase score with gameflow manager type class TODO
+                    }
+            }
+        }
+    }
+
     public void update() {
         this.move();
+        this.checkInteractions();
     }
 
     public void draw(Graphics2D graphics2D, int width, int height) {

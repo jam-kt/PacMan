@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-public class World { // a collection of Tiles that are either a wall, gate, or path tile
+public class World { //represents the game level with tiles and contains, updates, and renders all entities
     private final GamePanel gamePanel;
     private final BufferedImage[] tileImages = new BufferedImage[3];
     private final Tile[][] tileMap;
@@ -25,10 +25,12 @@ public class World { // a collection of Tiles that are either a wall, gate, or p
     private final HashSet<Entity> backgroundEntities = new HashSet<>(); //use for dots and powerups, simplifies render order
     private final int tileWidth;
     private final int tileHeight;
+    private final GameplayManager gameManager;
 
 
-    public World(GamePanel gamePanel) {
+    public World(GamePanel gamePanel, GameplayManager gameManager) {
         this.gamePanel = gamePanel;
+        this.gameManager = gameManager;
         this.tileWidth = gamePanel.getPanelPixelWidth() / gamePanel.getTileSize();
         this.tileHeight = gamePanel.getPanelPixelHeight() / gamePanel.getTileSize();
 
@@ -38,7 +40,7 @@ public class World { // a collection of Tiles that are either a wall, gate, or p
         initiateEntities();
     }
 
-    public List<MovingEntity> getEntityList() {
+    public List<MovingEntity> getMovingEntities() {
         return movingEntities.stream().toList();
     }
 
@@ -46,12 +48,12 @@ public class World { // a collection of Tiles that are either a wall, gate, or p
         return backgroundEntities.stream().toList();
     }
 
-    private Tile getTile(Point pixelPoint) { // retrieves a map Tile given pixel coordinates in form of a Point
+    public Tile getTile(Point pixelPoint) { // retrieves a map Tile given pixel coordinates in form of a Point
         return tileMap[pixelPoint.x / gamePanel.getTileSize()][pixelPoint.y / gamePanel.getTileSize()];
     }
 
     public void updateMovingEntities() {
-        List<MovingEntity> entityList = this.getEntityList();
+        List<MovingEntity> entityList = this.getMovingEntities();
         for (MovingEntity entity : entityList) {
             entity.update();
         }
@@ -63,7 +65,7 @@ public class World { // a collection of Tiles that are either a wall, gate, or p
             entity.draw(graphics2D, gamePanel.getTileSize(), gamePanel.getTileSize());
         }
 
-        List<MovingEntity> entityList = this.getEntityList(); // allows more important entities (moving ones) to be drawn on top
+        List<MovingEntity> entityList = this.getMovingEntities(); // allows more important entities (moving ones) to be drawn on top
         for (Entity entity : entityList) {
             entity.draw(graphics2D, gamePanel.getTileSize(), gamePanel.getTileSize());
         }
@@ -97,9 +99,8 @@ public class World { // a collection of Tiles that are either a wall, gate, or p
                             tileImages[tileNum], (tileNum == 0) || (tileNum == 2));
 
                     if(tileNum == 1) { // to spawn a Dot entity where there are path tiles
-                        Dot tempDot = new Dot(tileMap[x][y].getPixelPoint());
-                        this.backgroundEntities.add(tempDot);
-                        tileMap[x][y].addOccupant(tempDot);
+                        this.addEntity(new Dot(tileMap[x][y].getPixelPoint(), gamePanel.getTileSize()));
+                        gameManager.increaseDotCount();
                     }
                 }
             }
@@ -113,42 +114,60 @@ public class World { // a collection of Tiles that are either a wall, gate, or p
         for (int y = 0; y < tileHeight; y++) {
             for (int x = 0; x < tileWidth; x++) {
                 graphics2D.drawImage(tileMap[x][y].getImage(),
-                        x * gamePanel.getTileSize(),
-                        y * gamePanel.getTileSize(),
-                        gamePanel.getTileSize(),
-                        gamePanel.getTileSize(),
+                        x * gamePanel.getTileSize() + 4,
+                        y * gamePanel.getTileSize() + 4,
+                        gamePanel.getTileSize() - 8,
+                        gamePanel.getTileSize() - 8,
                         null);
             }
         }
     }
 
     private void initiateEntities() {
-        PacMan pac = new PacMan(gamePanel,this,new Point(2 * gamePanel.getTileSize(), 2 * gamePanel.getTileSize()));
-        this.movingEntities.add(pac);
-        this.getTile(pac.getPosition()).addOccupant(pac);
+        this.addEntity(new PacMan(gamePanel,this, tileMap[13][17].getPixelPoint(), 8));
 
     }
 
     private List<Tile> get3x3Tiles(Point pixelPoint) {
-        List<Tile> outList = new ArrayList<>(9);
-        Tile center = getTile(pixelPoint);
+        List<Tile> outList = new ArrayList<>(8);
+        outList.add(getTile(new Point(pixelPoint.x - gamePanel.getTileSize(), pixelPoint.y - gamePanel.getTileSize())));
+        outList.add(getTile(new Point(pixelPoint.x + gamePanel.getTileSize(), pixelPoint.y + gamePanel.getTileSize())));
+        outList.add(getTile(new Point(pixelPoint.x - gamePanel.getTileSize(), pixelPoint.y + gamePanel.getTileSize())));
+        outList.add(getTile(new Point(pixelPoint.x + gamePanel.getTileSize(), pixelPoint.y - gamePanel.getTileSize())));
+        outList.add(getTile(new Point(pixelPoint.x, pixelPoint.y - gamePanel.getTileSize())));
+        outList.add(getTile(new Point(pixelPoint.x, pixelPoint.y + gamePanel.getTileSize())));
+        outList.add(getTile(new Point(pixelPoint.x - gamePanel.getTileSize(), pixelPoint.y)));
+        outList.add(getTile(new Point(pixelPoint.x + gamePanel.getTileSize(), pixelPoint.y )));
+
         return outList;
     }
+
     private boolean willCollide(MovingEntity entity, Point intendedDestination) { // helper to moveEntity
         Tile intendedTile = getTile(intendedDestination);
-        if(intendedTile.isWall()) {
-            Rectangle tileHitbox = new Rectangle(intendedTile.getPixelPoint().x, intendedTile.getPixelPoint().y, gamePanel.getTileSize(), gamePanel.getTileSize());
-            return entity.getHitbox().intersects(tileHitbox);
+        if (intendedTile.isWall()) {
+            return true;
+        }
+        else {
+            List<Tile> neighborTiles = get3x3Tiles(intendedDestination);
+            for(Tile tile : neighborTiles) {
+                if(tile.isWall()) {
+                    Rectangle tileHitbox = new Rectangle(tile.getPixelPoint().x,
+                            tile.getPixelPoint().y, gamePanel.getTileSize(), gamePanel.getTileSize());
+
+                    if(tileHitbox.intersects(entity.getIntendedHitbox(intendedDestination))) {
+                        return true;
+                    }
+                }
+            }
         }
         return false;
     }
 
     /**
-     * Entities must call this method to finalize movement in the World. Do not change an Entity's position from its own
-     * class. Assumes that the intendedDestination is in a valid tile. Entities should call willCollide to verify before
-     * initiating a move.
+     * Entities must call this method to try movement in the World. Do not change an Entity's position from its own
+     * class.
      */
-    public boolean moveEntity(MovingEntity entity, Point intendedDestination) { // entities must call this method to finalize movement in the World
+    public boolean moveEntity(MovingEntity entity, Point intendedDestination) {
         if(willCollide(entity, intendedDestination)) {
             return false;
         }
@@ -159,6 +178,31 @@ public class World { // a collection of Tiles that are either a wall, gate, or p
             return true;
 
         }
+    }
+
+    public void removeEntity(Entity entity) {
+        this.getTile(entity.getPosition()).removeOccupant(entity);
+
+        if(backgroundEntities.remove(entity)) {
+            return;
+        }
+        else {
+            movingEntities.remove((MovingEntity) entity);
+        }
+    }
+
+    public boolean addEntity(Entity entity) {
+        if(this.getTile(entity.getPosition()).isWall()) {
+            return false;
+        }
+        if(entity instanceof MovingEntity) {
+            this.movingEntities.add((MovingEntity) entity);
+        }
+        else {
+            this.backgroundEntities.add(entity);
+        }
+        this.getTile(entity.getPosition()).addOccupant(entity);
+        return true;
     }
 
 }

@@ -3,7 +3,9 @@ package world;
 import entity.Entity;
 
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 public class Tile {
     private BufferedImage image;
@@ -44,5 +46,9 @@ public class Tile {
             }
         }
         return false;
+    }
+
+    public List<Entity> getOccupants() {
+        return occupants.stream().toList();
     }
 }

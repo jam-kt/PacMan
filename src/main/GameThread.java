@@ -14,6 +14,7 @@ public class GameThread implements Runnable {
     public void start() {
         this.gameThread.start();
     }
+
     @Override
     public void run() { // drives the update and render cycle for the gamePanel at 60 FPS
         double interval = 1000000000/FPS;

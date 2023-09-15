@@ -27,23 +27,25 @@ public class AnimationHandler { // not the most strict class regarding OOP adher
 
     private void getImages() { // get and add appropriate images to the four lists based on class type
         try {
-            if (entity.getClass().equals(PacMan.class)) {
-                this.up.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile002.png")));
-                this.up.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile029.png")));
-                this.up.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile028.png")));
-                this.up.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile029.png")));
-                this.left.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile002.png")));
-                this.left.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile015.png")));
-                this.left.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile014.png")));
-                this.left.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile015.png")));
-                this.right.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile002.png")));
-                this.right.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile001.png")));
-                this.right.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile000.png")));
-                this.right.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile001.png")));
-                this.down.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile002.png")));
-                this.down.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile043.png")));
-                this.down.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile042.png")));
-                this.down.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile043.png")));
+            switch(entity.getClass().getName()) {
+                case "PacMan.class":
+                    this.up.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile002.png")));
+                    this.up.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile029.png")));
+                    this.up.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile028.png")));
+                    this.up.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile029.png")));
+                    this.left.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile002.png")));
+                    this.left.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile015.png")));
+                    this.left.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile014.png")));
+                    this.left.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile015.png")));
+                    this.right.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile002.png")));
+                    this.right.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile001.png")));
+                    this.right.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile000.png")));
+                    this.right.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile001.png")));
+                    this.down.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile002.png")));
+                    this.down.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile043.png")));
+                    this.down.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile042.png")));
+                    this.down.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile043.png")));
+                case "":
             }
         }
         catch(IOException e) {e.printStackTrace();}
