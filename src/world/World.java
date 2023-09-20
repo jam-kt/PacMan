@@ -1,9 +1,6 @@
 package world;
 
-import entity.Dot;
-import entity.Entity;
-import entity.MovingEntity;
-import entity.PacMan;
+import entity.*;
 import main.GamePanel;
 
 import javax.imageio.ImageIO;
@@ -25,7 +22,9 @@ public class World { //represents the game level with tiles and contains, update
     private final HashSet<Entity> backgroundEntities = new HashSet<>(); //use for dots and powerups, simplifies render order
     private final int tileWidth;
     private final int tileHeight;
-    private final GameplayManager gameManager;
+    public final GameplayManager gameManager;
+
+    public PacMan pacMan; // so much easier to keep pac as an attribute of World. Circumvent with a findEntity method
 
 
     public World(GamePanel gamePanel, GameplayManager gameManager) {
@@ -50,6 +49,10 @@ public class World { //represents the game level with tiles and contains, update
 
     public Tile getTile(Point pixelPoint) { // retrieves a map Tile given pixel coordinates in form of a Point
         return tileMap[pixelPoint.x / gamePanel.getTileSize()][pixelPoint.y / gamePanel.getTileSize()];
+    }
+
+    public Tile getTileFromMap(int mapX, int mapY) { // retrieves a map Tile given the map coordinates
+        return tileMap[mapX][mapY];
     }
 
     public void updateMovingEntities() {
@@ -124,7 +127,9 @@ public class World { //represents the game level with tiles and contains, update
     }
 
     private void initiateEntities() {
-        this.addEntity(new PacMan(gamePanel,this, tileMap[13][17].getPixelPoint(), 8));
+        this.pacMan = new PacMan(gamePanel,this, tileMap[13][17].getPixelPoint(), 8);
+        this.addEntity(this.pacMan);
+        this.addEntity(new Pinky(this.gamePanel, this, tileMap[13][11].getPixelPoint(), 8));
 
     }
 
@@ -203,6 +208,12 @@ public class World { //represents the game level with tiles and contains, update
         }
         this.getTile(entity.getPosition()).addOccupant(entity);
         return true;
+    }
+
+    public boolean tileInBound(Point tilePoint) {
+        boolean x = ((0 <= tilePoint.x) && (tilePoint.x <= (gamePanel.getPanelPixelWidth() / gamePanel.getTileSize())));
+        boolean y = ((0 <= tilePoint.y) && (tilePoint.y <= (gamePanel.getPanelPixelHeight() / gamePanel.getTileSize())));
+        return x && y;
     }
 
 }

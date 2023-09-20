@@ -1,10 +1,13 @@
 package entity;
 
+import pathing.AStarPathingStrategy;
+import pathing.PathingStrategy;
 import main.GamePanel;
 import world.Point;
 import world.World;
 
 import java.awt.*;
+import java.util.List;
 
 public abstract class Ghost implements MovingEntity {
     private final GamePanel gamePanel;
@@ -12,7 +15,7 @@ public abstract class Ghost implements MovingEntity {
     private Point position;
     private final AnimationHandler animationHandler;
     private final int speed;
-    private String currentDirection = "right";
+    private String currentDirection = "up";
     private final Rectangle hitbox;
 
     public Ghost(GamePanel gamePanel, World world, Point position, int SpeedTilesPerSec) { // speed should be 8
@@ -41,11 +44,13 @@ public abstract class Ghost implements MovingEntity {
 
     @Override
     public void update() {
-
+        this.move();
+        this.checkInteractions();
     }
 
     @Override
     public Rectangle getCurrentHitbox() {
+        this.hitbox.setLocation(this.position.x, this.position.y);
         return this.hitbox;
     }
 
@@ -56,8 +61,8 @@ public abstract class Ghost implements MovingEntity {
 
     @Override
     public void checkInteractions() {
-        if(world.getTile(this.position).containsOccupantType(PacMan.class)) {
-            //end game TODO
+        if(world.pacMan.getCurrentHitbox().intersects(this.getCurrentHitbox())) {
+            world.gameManager.requestGameEnd();
         }
     }
 
@@ -66,8 +71,44 @@ public abstract class Ghost implements MovingEntity {
         this.position = position;
     }
 
+    public abstract Point getMyTarget(GamePanel gamePanel, World world); // each ghost has a unique target position relative to Pac
+
     @Override
     public void move() {
+        String intendedDirection = this.currentDirection;
+        PathingStrategy pathingStrategy = new AStarPathingStrategy();
+        List<Point> path = pathingStrategy.computePath(Point.scaleDown(this.position, gamePanel.getTileSize()),
+                this.getMyTarget(this.gamePanel, this.world),
+                // since the path is computed at tile level, not pixel, we have to check map coordinates instead of pixel ones
+                p -> !world.getTileFromMap(p.x, p.y).isWall(),
+                Point::adjacent,
+                PathingStrategy.CARDINAL_NEIGHBORS, gamePanel.getTileSize());
 
+        if(!path.isEmpty()) {
+            Point pathSuggestedPoint = path.get(0);
+            intendedDirection = Point.findDirectionFrom(Point.scaleDown(this.position, gamePanel.getTileSize()), pathSuggestedPoint);
+        }
+        if(!tryMovement(intendedDirection)) { // if moving in our intended direction fails, try to move in our current direction
+            tryMovement(this.currentDirection);
+        }
+    }
+
+    private boolean tryMovement(String direction) { // returns true if pac is able to travel in this direction, updates position/direction
+        int intendedX = position.x;
+        int intendedY = position.y;
+        switch (direction) {
+            case "up" -> intendedY -= speed;
+            case "down" -> intendedY += speed;
+            case "left" -> intendedX -= speed;
+            case "right" -> intendedX += speed;
+        }
+        Point intendedPoint = new Point(intendedX, intendedY);
+        if(world.moveEntity(this, intendedPoint)) {
+            this.currentDirection = direction;
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 }

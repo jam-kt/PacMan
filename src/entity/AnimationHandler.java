@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class AnimationHandler { // not the most strict class regarding OOP adherence, but easier since game only has few animations
-    private final MovingEntity entity; // all entities that will move are also animated. Again not the most OOP strict...
+    private final MovingEntity entity; // all entities that will move are also animated
     private final int interval; // how many frames each sprite will be displayed for 60/interval = animation frame rate
     private int framesPassed; // for internal logic
     private int currentFrame = 0; // ^
@@ -27,8 +27,8 @@ public class AnimationHandler { // not the most strict class regarding OOP adher
 
     private void getImages() { // get and add appropriate images to the four lists based on class type
         try {
-            switch(entity.getClass().getName()) {
-                case "PacMan.class":
+            switch (entity.getClass().getName()) {
+                case "entity.PacMan" -> {
                     this.up.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile002.png")));
                     this.up.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile029.png")));
                     this.up.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile028.png")));
@@ -45,7 +45,17 @@ public class AnimationHandler { // not the most strict class regarding OOP adher
                     this.down.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile043.png")));
                     this.down.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile042.png")));
                     this.down.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile043.png")));
-                case "":
+                }
+                case "entity.Pinky" -> {
+                    this.up.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile074.png")));
+                    this.up.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile075.png")));
+                    this.left.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile072.png")));
+                    this.left.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile073.png")));
+                    this.right.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile070.png")));
+                    this.right.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile071.png")));
+                    this.down.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile076.png")));
+                    this.down.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile077.png")));
+                }
             }
         }
         catch(IOException e) {e.printStackTrace();}

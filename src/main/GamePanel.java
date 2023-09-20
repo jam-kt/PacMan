@@ -15,9 +15,8 @@ public class GamePanel extends JPanel{
     private final int panelPixelHeight = tileSize * 31; // 36 rows (31 without extra GUI parts like lives/score)
     public final KeyHandler keyHandler = new KeyHandler();
 
-    private GameplayManager gameplayManager = new GameplayManager(this);
-    private World world = new World(this, gameplayManager);
-
+    private GameplayManager gameplayManager = new GameplayManager(this); // manager to keep track of state, ended or playing
+    private World world = new World(this, gameplayManager); // the representation of our game world and its entities
 
     public GamePanel() {
         this.setPreferredSize(new Dimension(panelPixelWidth, panelPixelHeight));
@@ -25,10 +24,6 @@ public class GamePanel extends JPanel{
         this.setDoubleBuffered(true);
         this.addKeyListener(keyHandler);
         this.setFocusable(true);
-    }
-
-    public int getScale() {
-        return this.scale;
     }
 
     public int getPanelPixelHeight() {
@@ -43,14 +38,14 @@ public class GamePanel extends JPanel{
         return tileSize;
     }
 
-    public void update() { // executes game logic for entities within the world. Done through gameplayManager
-        if(keyHandler.reset) {
-            this.world = new World(this, new GameplayManager(this));
+    public void update() { // executes game logic including play/pause/resetting. Calls update logic for entities
+        if(keyHandler.reset) { // use R to reset, ENTER to start a game after it's been reset
+            this.gameplayManager = new GameplayManager(this);
+            this.world = new World(this, this.gameplayManager);
             keyHandler.reset = false;
             keyHandler.pause = true;
-        }
-        else if(!keyHandler.pause) {
-            world.updateMovingEntities();
+        } else if ((!this.gameplayManager.isEndGame()) && (!keyHandler.pause)) { // use ENTER key to pause/unpause
+            world.updateMovingEntities(); // update entities and allow gameplay logic to continue
         }
     }
 

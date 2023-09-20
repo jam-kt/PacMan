@@ -99,7 +99,7 @@ public class PacMan implements MovingEntity {
                 case "entity.Dot":
                     if(this.getCurrentHitbox().intersects(entity.getCurrentHitbox())) {
                         world.removeEntity(entity);
-                        //increase score with gameflow manager type class TODO
+                        world.gameManager.decreaseDotCount();
                     }
             }
         }
