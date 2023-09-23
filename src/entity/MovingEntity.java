@@ -9,9 +9,9 @@ public interface MovingEntity extends Entity {
 
     void update();
 
-    Rectangle getCurrentHitbox();
+    Rectangle getCurrentHitbox(); // use as a entity-entity collision hitbox. Can be smaller than tile size
 
-    Rectangle getIntendedHitbox(Point IntendedPoint);
+    Rectangle getIntendedHitbox(Point IntendedPoint); // a separate hitbox exactly the size of a normal tile. Use for movement checks
 
     void checkInteractions();
 

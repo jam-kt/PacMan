@@ -8,6 +8,8 @@ import world.World;
 
 import java.awt.*;
 import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
 public abstract class Ghost implements MovingEntity {
     private final GamePanel gamePanel;
@@ -25,8 +27,8 @@ public abstract class Ghost implements MovingEntity {
         this.world = world;
         this.animationHandler = new AnimationHandler(this, 5);
         this.hitbox = new Rectangle(0, 0, this.gamePanel.getTileSize(), this.gamePanel.getTileSize());
-
     }
+
     @Override
     public Point getPosition() {
         return this.position;
@@ -61,9 +63,9 @@ public abstract class Ghost implements MovingEntity {
 
     @Override
     public void checkInteractions() {
-        if(world.pacMan.getCurrentHitbox().intersects(this.getCurrentHitbox())) {
-            world.gameManager.requestGameEnd();
-        }
+//        if(world.pacMan.getCurrentHitbox().intersects(this.getCurrentHitbox())) {
+//            world.gameManager.requestGameEnd();
+//        }
     }
 
     @Override
@@ -71,26 +73,57 @@ public abstract class Ghost implements MovingEntity {
         this.position = position;
     }
 
+    /**
+     * returns a point representing a tileMap coordinate. Use Point.scaleDown to turn pixelPoint into tile coord
+     */
     public abstract Point getMyTarget(GamePanel gamePanel, World world); // each ghost has a unique target position relative to Pac
+
+    private Function<Point, Stream<Point>> selectNeighborOptions(String currentDirection) { // to implement no 180 rule
+        switch (currentDirection) {
+            case "up" -> {
+                return PathingStrategy.CARDINAL_NEIGHBORS_UP;
+            }
+            case "down" -> {
+                return PathingStrategy.CARDINAL_NEIGHBORS_DOWN;
+            }
+            case "left" -> {
+                return PathingStrategy.CARDINAL_NEIGHBORS_LEFT;
+            }
+            case "right" -> {
+                return PathingStrategy.CARDINAL_NEIGHBORS_RIGHT;
+            }
+        }
+        return PathingStrategy.CARDINAL_NEIGHBORS; // just so the compiler is happy. Shouldn't get here ever.
+    }
 
     @Override
     public void move() {
-        String intendedDirection = this.currentDirection;
-        PathingStrategy pathingStrategy = new AStarPathingStrategy();
-        List<Point> path = pathingStrategy.computePath(Point.scaleDown(this.position, gamePanel.getTileSize()),
-                this.getMyTarget(this.gamePanel, this.world),
-                // since the path is computed at tile level, not pixel, we have to check map coordinates instead of pixel ones
-                p -> !world.getTileFromMap(p.x, p.y).isWall(),
-                Point::adjacent,
-                PathingStrategy.CARDINAL_NEIGHBORS, gamePanel.getTileSize());
-
+        String intendedDirection;
+        List<Point> path = getPath(this.getMyTarget(this.gamePanel, this.world));
         if(!path.isEmpty()) {
+            Point pathSuggestedPoint = path.get(0);
+            intendedDirection = Point.findDirectionFrom(Point.scaleDown(this.position, gamePanel.getTileSize()), pathSuggestedPoint);
+        }
+        else {
+            path = getPath(Point.scaleDown(world.pacMan.getPosition(), gamePanel.getTileSize()));
             Point pathSuggestedPoint = path.get(0);
             intendedDirection = Point.findDirectionFrom(Point.scaleDown(this.position, gamePanel.getTileSize()), pathSuggestedPoint);
         }
         if(!tryMovement(intendedDirection)) { // if moving in our intended direction fails, try to move in our current direction
             tryMovement(this.currentDirection);
         }
+    }
+
+    private List<Point> getPath(Point targetPoint) {
+        PathingStrategy pathingStrategy = new AStarPathingStrategy();
+
+        return pathingStrategy.computePath(Point.scaleDown(this.position, gamePanel.getTileSize()),
+                targetPoint,
+                // since the path is computed at tile level, not pixel, we have to check map coordinates instead of pixel ones
+                p -> !world.getTileFromMap(p.x, p.y).isWall(),
+                Point::adjacent,
+                selectNeighborOptions(this.currentDirection), gamePanel.getTileSize());
+
     }
 
     private boolean tryMovement(String direction) { // returns true if pac is able to travel in this direction, updates position/direction
@@ -111,4 +144,5 @@ public abstract class Ghost implements MovingEntity {
             return false;
         }
     }
+
 }

@@ -23,7 +23,7 @@ public interface PathingStrategy
                            BiPredicate<Point, Point> withinReach,
                            Function<Point, Stream<Point>> potentialNeighbors, int tileSize);
 
-   static final Function<Point, Stream<Point>> CARDINAL_NEIGHBORS =
+   Function<Point, Stream<Point>> CARDINAL_NEIGHBORS =
       point ->
          Stream.<Point>builder()
             .add(new Point(point.x, point.y - 1))
@@ -32,17 +32,49 @@ public interface PathingStrategy
             .add(new Point(point.x + 1, point.y))
             .build();
 
-   static final Function<Point, Stream<Point>> DIAGONAL_CARDINAL_NEIGHBORS =
+   Function<Point, Stream<Point>> DIAGONAL_CARDINAL_NEIGHBORS =
+        point ->
+                Stream.<Point>builder()
+                        .add(new Point(point.x - 1, point.y - 1))
+                        .add(new Point(point.x + 1, point.y + 1))
+                        .add(new Point(point.x - 1, point.y + 1))
+                        .add(new Point(point.x + 1, point.y - 1))
+                        .add(new Point(point.x, point.y - 1))
+                        .add(new Point(point.x, point.y + 1))
+                        .add(new Point(point.x - 1, point.y))
+                        .add(new Point(point.x + 1, point.y))
+                        .build();
+
+   Function<Point, Stream<Point>> CARDINAL_NEIGHBORS_UP =
            point ->
                    Stream.<Point>builder()
-                           .add(new Point(point.x - 1, point.y - 1))
-                           .add(new Point(point.x + 1, point.y + 1))
-                           .add(new Point(point.x - 1, point.y + 1))
-                           .add(new Point(point.x + 1, point.y - 1))
                            .add(new Point(point.x, point.y - 1))
+                           .add(new Point(point.x - 1, point.y))
+                           .add(new Point(point.x + 1, point.y))
+                           .build();
+
+   Function<Point, Stream<Point>> CARDINAL_NEIGHBORS_DOWN =
+           point ->
+                   Stream.<Point>builder()
                            .add(new Point(point.x, point.y + 1))
                            .add(new Point(point.x - 1, point.y))
                            .add(new Point(point.x + 1, point.y))
                            .build();
 
+   Function<Point, Stream<Point>> CARDINAL_NEIGHBORS_LEFT =
+           point ->
+                   Stream.<Point>builder()
+                           .add(new Point(point.x, point.y - 1))
+                           .add(new Point(point.x, point.y + 1))
+                           .add(new Point(point.x - 1, point.y))
+                           .build();
+
+   Function<Point, Stream<Point>> CARDINAL_NEIGHBORS_RIGHT =
+           point ->
+                   Stream.<Point>builder()
+                           .add(new Point(point.x, point.y - 1))
+                           .add(new Point(point.x, point.y + 1))
+                           .add(new Point(point.x + 1, point.y))
+                           .build();
 }
+

@@ -15,14 +15,11 @@ public class Pinky extends Ghost {
        String pacDirection = world.pacMan.getCurrentDirection();
        Point myTarget = pacPosition;
         switch (pacDirection) {
-            case "up" -> myTarget = new Point(pacPosition.x, pacPosition.y - 4);
+            case "up" -> myTarget = new Point(pacPosition.x - 4, pacPosition.y - 4);
             case "down" -> myTarget = new Point(pacPosition.x, pacPosition.y + 4);
             case "left" -> myTarget = new Point(pacPosition.x - 4, pacPosition.y);
             case "right" -> myTarget = new Point(pacPosition.x + 4, pacPosition.y);
         }
-        if(world.tileInBound(myTarget)) {
-            return myTarget;
-        }
-        return pacPosition;
+        return world.clampTile(myTarget);
     }
 }

@@ -56,6 +56,36 @@ public class AnimationHandler { // not the most strict class regarding OOP adher
                     this.down.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile076.png")));
                     this.down.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile077.png")));
                 }
+                case "entity.Blinky" -> {
+                    this.up.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile060.png")));
+                    this.up.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile061.png")));
+                    this.left.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile058.png")));
+                    this.left.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile059.png")));
+                    this.right.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile056.png")));
+                    this.right.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile057.png")));
+                    this.down.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile062.png")));
+                    this.down.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile063.png")));
+                }
+                case "entity.Inky" -> {
+                    this.up.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile088.png")));
+                    this.up.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile089.png")));
+                    this.left.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile086.png")));
+                    this.left.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile087.png")));
+                    this.right.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile084.png")));
+                    this.right.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile085.png")));
+                    this.down.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile090.png")));
+                    this.down.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile091.png")));
+                }
+                case "entity.Clyde" -> {
+                    this.up.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile102.png")));
+                    this.up.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile103.png")));
+                    this.left.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile100.png")));
+                    this.left.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile101.png")));
+                    this.right.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile098.png")));
+                    this.right.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile099.png")));
+                    this.down.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile104.png")));
+                    this.down.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile105.png")));
+                }
             }
         }
         catch(IOException e) {e.printStackTrace();}

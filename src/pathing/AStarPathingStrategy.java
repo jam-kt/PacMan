@@ -21,11 +21,22 @@ public class AStarPathingStrategy implements PathingStrategy { // CALCULATES IN 
         HashMap<Point, Integer> closedList = new HashMap<>();
         List<Point> outlist = new ArrayList<>();
         Node currentNode = new Node(start, heuristicDistance(start, end));
+        boolean firstNode = true; // this is needed because the first direction taken must adhere to the no 180 rule for ghosts
+        List<Point> neighbors;
 
-        while(!withinReach.test(currentNode.point, end)) {
+        while(!withinReach.test(currentNode.point, end) || firstNode) {
             closedList.put(currentNode.point, currentNode.f);
-            List<Point> neighbors = potentialNeighbors.apply(currentNode.point)
-                    .filter(canPassThrough.and(p -> !closedList.containsKey(p))).toList();
+            if(firstNode) { // the first direction taken will adhere to the no 180 rule
+                neighbors = potentialNeighbors.apply(currentNode.point)
+                        .filter(canPassThrough.and(p -> !closedList.containsKey(p))).toList();
+                firstNode = false;
+            }
+            // all other points chosen on the path will not be restricted to the original direction, and will not allow
+            // 180 movement either because of the closedList
+            else {
+                neighbors = PathingStrategy.CARDINAL_NEIGHBORS.apply(currentNode.point)
+                        .filter(canPassThrough.and(p -> !closedList.containsKey(p))).toList();
+            }
 
             for(Point point : neighbors) {
                 Node newNode = new Node(point, currentNode, currentNode.g + 1, heuristicDistance(point, end));

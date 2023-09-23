@@ -24,8 +24,7 @@ public class World { //represents the game level with tiles and contains, update
     private final int tileHeight;
     public final GameplayManager gameManager;
 
-    public PacMan pacMan; // so much easier to keep pac as an attribute of World. Circumvent with a findEntity method
-
+    public PacMan pacMan; // easiest to do this since pacMan needs to be accessed from many places
 
     public World(GamePanel gamePanel, GameplayManager gameManager) {
         this.gamePanel = gamePanel;
@@ -53,6 +52,19 @@ public class World { //represents the game level with tiles and contains, update
 
     public Tile getTileFromMap(int mapX, int mapY) { // retrieves a map Tile given the map coordinates
         return tileMap[mapX][mapY];
+    }
+
+    /**
+     * will assume that the movingEntity requested is present in the world. If not, will return PacMan as default
+     */
+    public Entity getMovingEntity(Class<?> classType) {
+        for(MovingEntity movingEntity : this.getMovingEntities()) {
+            if(movingEntity.getClass().equals(classType)) {
+                return movingEntity;
+            }
+        }
+        System.out.println("Debug: getMovingEntity uses PacMan default position with argument classType:" + classType);
+        return this.pacMan;
     }
 
     public void updateMovingEntities() {
@@ -129,8 +141,10 @@ public class World { //represents the game level with tiles and contains, update
     private void initiateEntities() {
         this.pacMan = new PacMan(gamePanel,this, tileMap[13][17].getPixelPoint(), 8);
         this.addEntity(this.pacMan);
-        this.addEntity(new Pinky(this.gamePanel, this, tileMap[13][11].getPixelPoint(), 8));
-
+        this.addEntity(new Pinky(this.gamePanel, this, tileMap[13][11].getPixelPoint(), 7));
+        this.addEntity(new Blinky(this.gamePanel, this, tileMap[14][11].getPixelPoint(), 7));
+        this.addEntity(new Inky(this.gamePanel, this, tileMap[12][11].getPixelPoint(), 7));
+        this.addEntity(new Clyde(this.gamePanel, this, tileMap[15][11].getPixelPoint(), 7));
     }
 
     private List<Tile> get3x3Tiles(Point pixelPoint) {
@@ -210,10 +224,20 @@ public class World { //represents the game level with tiles and contains, update
         return true;
     }
 
-    public boolean tileInBound(Point tilePoint) {
-        boolean x = ((0 <= tilePoint.x) && (tilePoint.x <= (gamePanel.getPanelPixelWidth() / gamePanel.getTileSize())));
-        boolean y = ((0 <= tilePoint.y) && (tilePoint.y <= (gamePanel.getPanelPixelHeight() / gamePanel.getTileSize())));
-        return x && y;
+    public Point clampTile(Point tilePoint) { // forces a tilePoint to be within bounds
+        if(tilePoint.x < 0) {
+            tilePoint.x = 0;
+        }
+        else if(tilePoint.x > gamePanel.getPanelPixelWidth()/ gamePanel.getTileSize()) {
+            tilePoint.x = gamePanel.getPanelPixelWidth()/ gamePanel.getTileSize();
+        }
+        if(tilePoint.y < 0) {
+            tilePoint.y = 0;
+        }
+        else if(tilePoint.y > gamePanel.getPanelPixelHeight()/ gamePanel.getTileSize()) {
+            tilePoint.y = gamePanel.getPanelPixelHeight()/ gamePanel.getTileSize();
+        }
+        return tilePoint;
     }
 
 }
