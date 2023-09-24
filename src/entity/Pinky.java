@@ -5,8 +5,9 @@ import world.Point;
 import world.World;
 
 public class Pinky extends Ghost {
-    public Pinky(GamePanel gamePanel, World world, Point position, int SpeedTilesPerSec) {
-        super(gamePanel, world, position, SpeedTilesPerSec);
+
+    public Pinky(GamePanel gamePanel, World world, Point position, int SpeedTilesPerSec, String currentDirection) {
+        super(gamePanel, world, position, SpeedTilesPerSec, currentDirection);
     }
 
     @Override

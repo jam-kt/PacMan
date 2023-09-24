@@ -8,6 +8,9 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
+/**
+ * Credit to CalPoly CS class CS203 for PathingStrategy interface
+ */
 public interface PathingStrategy
 {
    /**
@@ -31,19 +34,6 @@ public interface PathingStrategy
             .add(new Point(point.x - 1, point.y))
             .add(new Point(point.x + 1, point.y))
             .build();
-
-   Function<Point, Stream<Point>> DIAGONAL_CARDINAL_NEIGHBORS =
-        point ->
-                Stream.<Point>builder()
-                        .add(new Point(point.x - 1, point.y - 1))
-                        .add(new Point(point.x + 1, point.y + 1))
-                        .add(new Point(point.x - 1, point.y + 1))
-                        .add(new Point(point.x + 1, point.y - 1))
-                        .add(new Point(point.x, point.y - 1))
-                        .add(new Point(point.x, point.y + 1))
-                        .add(new Point(point.x - 1, point.y))
-                        .add(new Point(point.x + 1, point.y))
-                        .build();
 
    Function<Point, Stream<Point>> CARDINAL_NEIGHBORS_UP =
            point ->

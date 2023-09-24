@@ -5,8 +5,9 @@ import world.Point;
 import world.World;
 
 public class Clyde extends Ghost {
-    public Clyde(GamePanel gamePanel, World world, Point position, int SpeedTilesPerSec) {
-        super(gamePanel, world, position, SpeedTilesPerSec);
+
+    public Clyde(GamePanel gamePanel, World world, Point position, int SpeedTilesPerSec, String currentDirection) {
+        super(gamePanel, world, position, SpeedTilesPerSec, currentDirection);
     }
 
     private boolean isEightAway(Point pacPos, int tileSize) { // returns true if Clyde is currently more than 8 tiles away from pacman

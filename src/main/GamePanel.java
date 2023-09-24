@@ -15,8 +15,7 @@ public class GamePanel extends JPanel{
     private final int panelPixelHeight = tileSize * 31; // 36 rows (31 without extra GUI parts like lives/score)
     public final KeyHandler keyHandler = new KeyHandler();
 
-    private GameplayManager gameplayManager = new GameplayManager(this); // manager to keep track of state, ended or playing
-    private World world = new World(this, gameplayManager); // the representation of our game world and its entities
+    private World world = new World(this); // the representation of our game world and its entities
 
     public GamePanel() {
         this.setPreferredSize(new Dimension(panelPixelWidth, panelPixelHeight));
@@ -40,11 +39,10 @@ public class GamePanel extends JPanel{
 
     public void update() { // executes game logic including play/pause/resetting. Calls update logic for entities
         if(keyHandler.reset) { // use R to reset, ENTER to start a game after it's been reset
-            this.gameplayManager = new GameplayManager(this);
-            this.world = new World(this, this.gameplayManager);
+            this.world = new World(this);
             keyHandler.reset = false;
             keyHandler.pause = true;
-        } else if ((!this.gameplayManager.isEndGame()) && (!keyHandler.pause)) { // use ENTER key to pause/unpause
+        } else if ((!this.world.gameManager.isEndGame()) && (!keyHandler.pause)) { // use ENTER key to pause/unpause
             world.updateMovingEntities(); // update entities and allow gameplay logic to continue
         }
     }

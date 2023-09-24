@@ -15,20 +15,20 @@ import java.util.HashSet;
 import java.util.List;
 
 public class World { //represents the game level with tiles and contains, updates, and renders all entities
-    private final GamePanel gamePanel;
-    private final BufferedImage[] tileImages = new BufferedImage[3];
+    public final GamePanel gamePanel;
+    private final BufferedImage[] tileImages = new BufferedImage[4];
     private final Tile[][] tileMap;
     private final HashSet<MovingEntity> movingEntities = new HashSet<>();
     private final HashSet<Entity> backgroundEntities = new HashSet<>(); //use for dots and powerups, simplifies render order
     private final int tileWidth;
     private final int tileHeight;
-    public final GameplayManager gameManager;
+    public final GameplayManager gameManager; // used to keep track of the state of the game and various entities
 
     public PacMan pacMan; // easiest to do this since pacMan needs to be accessed from many places
 
-    public World(GamePanel gamePanel, GameplayManager gameManager) {
+    public World(GamePanel gamePanel) {
         this.gamePanel = gamePanel;
-        this.gameManager = gameManager;
+        this.gameManager = new GameplayManager(this);
         this.tileWidth = gamePanel.getPanelPixelWidth() / gamePanel.getTileSize();
         this.tileHeight = gamePanel.getPanelPixelHeight() / gamePanel.getTileSize();
 
@@ -55,7 +55,9 @@ public class World { //represents the game level with tiles and contains, update
     }
 
     /**
-     * will assume that the movingEntity requested is present in the world. If not, will return PacMan as default
+     * will assume that the movingEntity requested is present in the world. If not, will return PacMan as default. Used
+     * for pathing and will default to Pac in cases where Blinky may have been eaten and does not respawn before
+     * Inky requests his position for pathing
      */
     public Entity getMovingEntity(Class<?> classType) {
         for(MovingEntity movingEntity : this.getMovingEntities()) {
@@ -63,7 +65,7 @@ public class World { //represents the game level with tiles and contains, update
                 return movingEntity;
             }
         }
-        System.out.println("Debug: getMovingEntity uses PacMan default position with argument classType:" + classType);
+//        System.out.println("Debug: getMovingEntity uses PacMan default position with argument classType:" + classType);
         return this.pacMan;
     }
 
@@ -72,6 +74,7 @@ public class World { //represents the game level with tiles and contains, update
         for (MovingEntity entity : entityList) {
             entity.update();
         }
+        this.gameManager.update();
     }
 
     public void drawEntities(Graphics2D graphics2D) {
@@ -89,8 +92,9 @@ public class World { //represents the game level with tiles and contains, update
     private void getTileImages() {
         try {
             tileImages[0] = ImageIO.read(getClass().getResourceAsStream("/spriteFrames/wall.png"));
-            tileImages[1] = ImageIO.read(getClass().getResourceAsStream("/spriteFrames/path.png"));
+            tileImages[1] = ImageIO.read(getClass().getResourceAsStream("/spriteFrames/path.png")); // for ease of map generation, this is a dot path
             tileImages[2] = ImageIO.read(getClass().getResourceAsStream("/spriteFrames/gate.png"));
+            tileImages[3] = ImageIO.read(getClass().getResourceAsStream("/spriteFrames/path.png")); // this is a power pellet path
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -116,6 +120,8 @@ public class World { //represents the game level with tiles and contains, update
                     if(tileNum == 1) { // to spawn a Dot entity where there are path tiles
                         this.addEntity(new Dot(tileMap[x][y].getPixelPoint(), gamePanel.getTileSize()));
                         gameManager.increaseDotCount();
+                    } else if (tileNum == 3) {
+                        this.addEntity(new Pellet(tileMap[x][y].getPixelPoint(), gamePanel.getTileSize()));
                     }
                 }
             }
@@ -139,12 +145,12 @@ public class World { //represents the game level with tiles and contains, update
     }
 
     private void initiateEntities() {
-        this.pacMan = new PacMan(gamePanel,this, tileMap[13][17].getPixelPoint(), 8);
+        this.pacMan = new PacMan(gamePanel,this, tileMap[13][17].getPixelPoint(), 8, "right");
         this.addEntity(this.pacMan);
-        this.addEntity(new Pinky(this.gamePanel, this, tileMap[13][11].getPixelPoint(), 7));
-        this.addEntity(new Blinky(this.gamePanel, this, tileMap[14][11].getPixelPoint(), 7));
-        this.addEntity(new Inky(this.gamePanel, this, tileMap[12][11].getPixelPoint(), 7));
-        this.addEntity(new Clyde(this.gamePanel, this, tileMap[15][11].getPixelPoint(), 7));
+        this.addEntity(new Pinky(this.gamePanel, this, tileMap[13][11].getPixelPoint(), 7, "up"));
+        this.addEntity(new Blinky(this.gamePanel, this, tileMap[14][11].getPixelPoint(), 7, "up"));
+        this.addEntity(new Inky(this.gamePanel, this, tileMap[12][11].getPixelPoint(), 7, "up"));
+        this.addEntity(new Clyde(this.gamePanel, this, tileMap[15][11].getPixelPoint(), 7, "up"));
     }
 
     private List<Tile> get3x3Tiles(Point pixelPoint) {
@@ -211,6 +217,7 @@ public class World { //represents the game level with tiles and contains, update
     }
 
     public boolean addEntity(Entity entity) {
+        entity.setPosition(this.getTile(entity.getPosition()).getPixelPoint()); // check to ensure entities are added in proper pixel location
         if(this.getTile(entity.getPosition()).isWall()) {
             return false;
         }

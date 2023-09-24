@@ -5,8 +5,9 @@ import world.Point;
 import world.World;
 
 public class Blinky extends Ghost {
-    public Blinky(GamePanel gamePanel, World world, Point position, int SpeedTilesPerSec) {
-        super(gamePanel, world, position, SpeedTilesPerSec);
+
+    public Blinky(GamePanel gamePanel, World world, Point position, int SpeedTilesPerSec, String currentDirection) {
+        super(gamePanel, world, position, SpeedTilesPerSec, currentDirection);
     }
 
     @Override

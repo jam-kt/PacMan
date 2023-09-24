@@ -86,6 +86,22 @@ public class AnimationHandler { // not the most strict class regarding OOP adher
                     this.down.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile104.png")));
                     this.down.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile105.png")));
                 }
+                case "entity.ScaredGhost" -> {
+                    this.up.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile064.png")));
+                    this.up.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile065.png")));
+                    this.left.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile064.png")));
+                    this.left.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile065.png")));
+                    this.right.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile064.png")));
+                    this.right.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile065.png")));
+                    this.down.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile064.png")));
+                    this.down.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile065.png")));
+                }
+                case "entity.FloatyEyes" -> {
+                    this.up.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile080.png")));
+                    this.left.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile079.png")));
+                    this.right.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile078.png")));
+                    this.down.add(ImageIO.read(getClass().getResourceAsStream("/spriteFrames/tile081.png")));
+                }
             }
         }
         catch(IOException e) {e.printStackTrace();}

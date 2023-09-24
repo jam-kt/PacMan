@@ -1,8 +1,8 @@
 package entity;
 
+import main.GamePanel;
 import pathing.AStarPathingStrategy;
 import pathing.PathingStrategy;
-import main.GamePanel;
 import world.Point;
 import world.World;
 
@@ -11,7 +11,8 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-public abstract class Ghost implements MovingEntity {
+public class FloatyEyes implements MovingEntity{
+    public final String myType; // a string representing the class name of the ghost this dead ghost was created from
     private final GamePanel gamePanel;
     private final World world;
     private Point position;
@@ -20,11 +21,12 @@ public abstract class Ghost implements MovingEntity {
     private String currentDirection;
     private final Rectangle hitbox;
 
-    public Ghost(GamePanel gamePanel, World world, Point position, int speedTilesPerSec, String currentDirection) { // speed should be 8
-        this.position = position;
+    public FloatyEyes(GamePanel gamePanel, World world, Point position, int speedTilesPerSec, String myType, String currentDirection) {
         this.gamePanel = gamePanel;
-        this.speed = (this.gamePanel.getTileSize() * speedTilesPerSec) / 60; // what is his speed? Right now, 8 tiles per second
         this.world = world;
+        this.position = position;
+        this.speed = (this.gamePanel.getTileSize() * speedTilesPerSec) / 60;
+        this.myType = myType;
         this.currentDirection = currentDirection;
         this.animationHandler = new AnimationHandler(this, 10);
         this.hitbox = new Rectangle(0, 0, this.gamePanel.getTileSize(), this.gamePanel.getTileSize());
@@ -58,8 +60,14 @@ public abstract class Ghost implements MovingEntity {
 
     @Override
     public void checkInteractions() {
-        if(world.pacMan.getCurrentHitbox().intersects(this.getCurrentHitbox())) {
-            world.gameManager.requestGameEnd();
+        if(world.getTile(this.position).equals(world.getTileFromMap(13, 11))) {
+            switch (this.myType) {
+                case "entity.Blinky" -> this.world.addEntity(new Blinky(world.gamePanel, world, this.position, 7, "up"));
+                case "entity.Clyde" -> this.world.addEntity(new Clyde(world.gamePanel, world, this.position, 7, "up"));
+                case "entity.Inky" -> this.world.addEntity(new Inky(world.gamePanel, world, this.position, 7, "up"));
+                case "entity.Pinky" -> this.world.addEntity(new Pinky(world.gamePanel, world, this.position, 7, "up"));
+            }
+            world.removeEntity(this);
         }
     }
 
@@ -67,11 +75,6 @@ public abstract class Ghost implements MovingEntity {
     public void setPosition(Point position) {
         this.position = position;
     }
-
-    /**
-     * returns a point representing a tileMap coordinate. Use Point.scaleDown to turn pixelPoint into tile coordinate
-     */
-    public abstract Point getMyTarget(GamePanel gamePanel, World world); // each ghost has a unique target position relative to Pac
 
     private Function<Point, Stream<Point>> selectNeighborOptions(String currentDirection) { // to implement no 180 rule
         switch (currentDirection) {
@@ -81,7 +84,6 @@ public abstract class Ghost implements MovingEntity {
             case "down" -> {
                 return PathingStrategy.CARDINAL_NEIGHBORS_DOWN;
             }
-
             case "left" -> {
                 return PathingStrategy.CARDINAL_NEIGHBORS_LEFT;
             }
@@ -95,26 +97,16 @@ public abstract class Ghost implements MovingEntity {
     @Override
     public void move() {
         String intendedDirection = this.currentDirection;
-        List<Point> path = getPath(this.getMyTarget(this.gamePanel, this.world));
+        java.util.List<Point> path = getPath(Point.scaleDown(world.getTileFromMap(13, 11).getPixelPoint(), gamePanel.getTileSize()));
         if(!path.isEmpty()) {
             Point pathSuggestedPoint = path.get(0);
             intendedDirection = Point.findDirectionFrom(Point.scaleDown(this.position, gamePanel.getTileSize()), pathSuggestedPoint);
-        }
-        else {
-            path = getPath(Point.scaleDown(world.pacMan.getPosition(), gamePanel.getTileSize()));
-            if(!path.isEmpty()) {
-                Point pathSuggestedPoint = path.get(0);
-                intendedDirection = Point.findDirectionFrom(Point.scaleDown(this.position, gamePanel.getTileSize()), pathSuggestedPoint);
-            }
         }
         if(!tryMovement(intendedDirection)) { // if moving in our intended direction fails, try to move in our current direction
             tryMovement(this.currentDirection);
         }
     }
 
-    /**
-     * requires argument targetPoint to be given as a tileMap coordinate, not pixelPoint
-     */
     private List<Point> getPath(Point targetPoint) {
         PathingStrategy pathingStrategy = new AStarPathingStrategy();
 
@@ -127,7 +119,7 @@ public abstract class Ghost implements MovingEntity {
 
     }
 
-    private boolean tryMovement(String direction) { // returns true if pac is able to travel in this direction, updates position/direction
+    private boolean tryMovement(String direction) { // returns true if able to travel in this direction, updates position/direction
         int intendedX = position.x;
         int intendedY = position.y;
         switch (direction) {

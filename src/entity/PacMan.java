@@ -16,14 +16,15 @@ public class PacMan implements MovingEntity {
     private Point position;
     private final AnimationHandler animationHandler;
     private final int speed;
-    private String currentDirection = "right";
+    private String currentDirection;
     private final Rectangle hitbox;
 
-    public PacMan(GamePanel gamePanel, World world, Point position, int SpeedTilesPerSec) {
+    public PacMan(GamePanel gamePanel, World world, Point position, int speedTilesPerSec, String currentDirection) {
         this.position = position;
         this.gp = gamePanel;
+        this.currentDirection = currentDirection;
         this.keyHandler = gp.keyHandler;
-        this.speed = (gp.getTileSize() * SpeedTilesPerSec) / 60; // what is his speed? Right now, 8 tiles per second
+        this.speed = (gp.getTileSize() * speedTilesPerSec) / 60; // what is his speed? Right now, 8 tiles per second
         this.world = world;
         this.animationHandler = new AnimationHandler(this, 5);
         this.hitbox = new Rectangle(0, 0, gp.getTileSize(), gp.getTileSize());
@@ -92,22 +93,27 @@ public class PacMan implements MovingEntity {
         }
     }
 
+    // PacMan handles interactions where he eats Dots/Pellets/Fruit. Collisions with ghosts are handled in the ghost's
+    // respective classes
     public void checkInteractions() {
         List<Entity> sharingATile = world.getTile(this.position).getOccupants();
-        for(Entity entity : sharingATile) {
+        for (Entity entity : sharingATile) {
             switch (entity.getClass().getName()) {
-                case "entity.Dot":
-                    if(this.getCurrentHitbox().intersects(entity.getCurrentHitbox())) {
+                case "entity.Dot" -> {
+                    if (this.getCurrentHitbox().intersects(entity.getCurrentHitbox())) {
                         world.removeEntity(entity);
                         world.gameManager.decreaseDotCount();
                     }
+                }
+                case "entity.Pellet" -> {
+                    if (this.getCurrentHitbox().intersects(entity.getCurrentHitbox())) {
+                        world.removeEntity(entity);
+                        world.gameManager.initiatePoweredState();
+                    }
+                }
+
             }
         }
-    }
-
-    public void update() {
-        this.move();
-        this.checkInteractions();
     }
 
     public void draw(Graphics2D graphics2D, int width, int height) {
